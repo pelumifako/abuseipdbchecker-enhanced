@@ -48,12 +48,15 @@ function Get-ApiKeySecurely {
 
 function Test-Prerequisites {
     # Validate input parameters
-    if (($null -eq $IP) -and ($null -eq $FilePath)) {
+    $IPProvided = -not [string]::IsNullOrWhiteSpace($IP)
+    $FilePathProvided = -not [string]::IsNullOrWhiteSpace($FilePath)
+    
+    if (-not $IPProvided -and -not $FilePathProvided) {
         Write-Error "You must specify either -IP or -FilePath."
         exit 1
     }
     
-    if (($null -ne $IP) -and ($null -ne $FilePath)) {
+    if ($IPProvided -and $FilePathProvided) {
         Write-Error "Specify only one of -IP or -FilePath, not both."
         exit 1
     }
@@ -72,7 +75,7 @@ function Test-Prerequisites {
 }
 
 function Get-IPList {
-    if ($FilePath) {
+    if (-not [string]::IsNullOrWhiteSpace($FilePath)) {
         $IPs = Get-Content -Path $FilePath | Where-Object { 
             $_.Trim() -ne "" -and -not $_.StartsWith("#")
         }
